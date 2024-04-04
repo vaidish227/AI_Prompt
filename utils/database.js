@@ -21,8 +21,8 @@ const uri = process.env.MONGODB_URI; // Make sure this environment variable is p
     // Attempting to connect to the MongoDB database
     await mongoose.connect(uri, {
       dbName: "share_prompt", // Specifying the database name
-      useNewUrlParser: true, // Using new URL parser
-      useUnifiedTopology: true, // Using new server discovery and monitoring engine
+      //useNewUrlParser: true, // Using new URL parser
+      //useUnifiedTopology: true, // Using new server discovery and monitoring engine
     });
 
     // Updating connection status
