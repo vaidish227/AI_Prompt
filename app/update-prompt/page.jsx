@@ -1,7 +1,7 @@
-"use client";
+'use client'
 // Importing necessary modules from Next.js and React
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation"; // Updated import
 
 // Importing the Form component
 import Form from "@components/Form";
@@ -65,7 +65,7 @@ const UpdatePrompt = () => {
       if (response.ok) {
         router.push("/profile");
       }
-    } catch (error) { 
+    } catch (error) {
       console.log(error);
     } finally {
       setIsSubmitting(false);
@@ -74,13 +74,15 @@ const UpdatePrompt = () => {
 
   // Render the Form component with necessary props
   return (
-    <Form
-      type='Edit'
-      post={post}
-      setPost={setPost}
-      submitting={submitting}
-      handleSubmit={updatePrompt}
-    />
+    <Suspense fallback={<div>Loading...</div>}> {/* Wrap useSearchParams with Suspense */}
+      <Form
+        type="Edit"
+        post={post}
+        setPost={setPost}
+        submitting={submitting}
+        handleSubmit={updatePrompt}
+      />
+    </Suspense>
   );
 };
 
