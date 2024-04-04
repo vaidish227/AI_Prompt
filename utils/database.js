@@ -14,10 +14,12 @@ export const connectToDB = async () => {
     console.log('MongoDB is already connected');
     return;
   }
+// MongoDB URI
+const uri = process.env.MONGODB_URI; // Make sure this environment variable is properly set
 
   try {
     // Attempting to connect to the MongoDB database
-    await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect(uri, {
       dbName: "share_prompt", // Specifying the database name
       useNewUrlParser: true, // Using new URL parser
       useUnifiedTopology: true, // Using new server discovery and monitoring engine
