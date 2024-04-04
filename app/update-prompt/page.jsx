@@ -1,58 +1,40 @@
-'use client'
-// Importing necessary modules from Next.js and React
-import { useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation"; // Updated import
+"use client";
 
-// Importing the Form component
+import { useEffect, useState } from "react";
+import { Suspense } from 'react';
+import { useRouter, useSearchParams } from "next/router";
+
 import Form from "@components/Form";
 
-// Define the UpdatePrompt component
 const UpdatePrompt = () => {
-  // Initialize router and searchParams from Next.js
   const router = useRouter();
   const searchParams = useSearchParams();
-  const promptId = searchParams.get("id"); // Extracting the promptId from query parameters
+  const promptId = searchParams.get("id");
 
-  // Initialize state variables for post details and submission status
-  const [post, setPost] = useState({ prompt: "", tag: "" });
-  const [submitting, setIsSubmitting] = useState(true);
+  const [post, setPost] = useState({ prompt: "", tag: "", });
+  const [submitting, setIsSubmitting] = useState(false);
 
-  // Effect hook to fetch the prompt details when promptId changes
   useEffect(() => {
     const getPromptDetails = async () => {
-      if (!promptId) return; // If promptId is not available, exit
+      const response = await fetch(`/api/prompt/${promptId}`);
+      const data = await response.json();
 
-      try {
-        // Fetch the prompt details from the API
-        const response = await fetch(`/api/prompt/${promptId}`);
-        const data = await response.json();
-
-        // Set the prompt details in state
-        setPost({
-          prompt: data.prompt,
-          tag: data.tag,
-        });
-      } catch (error) {
-        console.log(error);
-      }
+      setPost({
+        prompt: data.prompt,
+        tag: data.tag,
+      });
     };
 
-    getPromptDetails(); // Call the function to fetch prompt details
+    if (promptId) getPromptDetails();
   }, [promptId]);
 
-  // Function to handle updating a prompt
   const updatePrompt = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // If promptId is missing, display an alert and exit
-    if (!promptId) {
-      alert("Missing PromptId!");
-      return;
-    }
+    if (!promptId) return alert("Missing PromptId!");
 
     try {
-      // Send a PATCH request to update the prompt
       const response = await fetch(`/api/prompt/${promptId}`, {
         method: "PATCH",
         body: JSON.stringify({
@@ -61,9 +43,8 @@ const UpdatePrompt = () => {
         }),
       });
 
-      // If update is successful, navigate to the homepage
       if (response.ok) {
-        router.push("/profile");
+        router.push("/");
       }
     } catch (error) {
       console.log(error);
@@ -72,19 +53,17 @@ const UpdatePrompt = () => {
     }
   };
 
-  // Render the Form component with necessary props
   return (
-    <Suspense fallback={<div>Loading...</div>}> {/* Wrap useSearchParams with Suspense */}
-      <Form
-        type="Edit"
-        post={post}
-        setPost={setPost}
-        submitting={submitting}
-        handleSubmit={updatePrompt}
-      />
+    <Suspense fallback={<div>Loading...</div>}>
+    <Form
+      type='Edit'
+      post={post}
+      setPost={setPost}
+      submitting={submitting}
+      handleSubmit={updatePrompt}
+    />
     </Suspense>
   );
 };
 
-// Export the UpdatePrompt component
 export default UpdatePrompt;
