@@ -15,7 +15,7 @@ const UpdatePrompt = () => {
 
   // Initialize state variables for post details and submission status
   const [post, setPost] = useState({ prompt: "", tag: "" });
-  const [submitting, setIsSubmitting] = useState(false);
+  const [submitting, setIsSubmitting] = useState(true);
 
   // Effect hook to fetch the prompt details when promptId changes
   useEffect(() => {
