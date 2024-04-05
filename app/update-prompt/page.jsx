@@ -1,20 +1,20 @@
 "use client";
-
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // Corrected import for useRouter
+import { useRouter, useSearchParams } from "next/navigation";
+
 import Form from "@components/Form";
 
 const UpdatePrompt = () => {
   const router = useRouter();
-  const [searchParams, setSearchParams] = useState(new URLSearchParams(window.location.search)); // Adjusted for client-side
+  const searchParams = useSearchParams();
   const promptId = searchParams.get("id");
 
-  const [post, setPost] = useState({ prompt: "", tag: "" });
+  const [post, setPost] = useState({ prompt: "", tag: "", });
   const [submitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const getPromptDetails = async () => {
-      if (!promptId) return;
       const response = await fetch(`/api/prompt/${promptId}`);
       const data = await response.json();
 
@@ -24,25 +24,18 @@ const UpdatePrompt = () => {
       });
     };
 
-    getPromptDetails();
+    if (promptId) getPromptDetails();
   }, [promptId]);
 
   const updatePrompt = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    if (!promptId) {
-      alert("Missing PromptId!");
-      setIsSubmitting(false); // Ensure to reset submitting state
-      return;
-    }
+    if (!promptId) return alert("Missing PromptId!");
 
     try {
       const response = await fetch(`/api/prompt/${promptId}`, {
         method: "PATCH",
-        headers: {
-          'Content-Type': 'application/json', // Added missing headers
-        },
         body: JSON.stringify({
           prompt: post.prompt,
           tag: post.tag,
@@ -51,25 +44,24 @@ const UpdatePrompt = () => {
 
       if (response.ok) {
         router.push("/");
-      } else {
-        // Handle non-OK responses
-        console.error('Failed to update the prompt.');
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
+    <Suspense fallback={<>Loading...</>}>
     <Form
-      type="Edit"
+      type='Edit'
       post={post}
       setPost={setPost}
       submitting={submitting}
       handleSubmit={updatePrompt}
     />
+    </Suspense>
   );
 };
 
