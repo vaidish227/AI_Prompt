@@ -1,21 +1,16 @@
 // Import necessary modules
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/router"; // Import useSearchParams directly from next/router
-import { Suspense } from 'react'; // Import Suspense
+import { useRouter } from "next/router"; // Import from next/router
 
-// Import Form component
 import Form from "@components/Form";
 
 // Define UpdatePrompt component
 const UpdatePrompt = () => {
   const router = useRouter();
-
-  // Wrap useSearchParams() in Suspense
-  const searchParams = <Suspense fallback={<div>Loading...</div>}>{useSearchParams()}</Suspense>;
+  const searchParams = new URLSearchParams(router.query); // Use router.query instead of useSearchParams
   const promptId = searchParams.get("id");
 
-  const [post, setPost] = useState({ prompt: "", tag: "" });
+  const [post, setPost] = useState({ prompt: "", tag: "", });
   const [submitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -51,7 +46,7 @@ const UpdatePrompt = () => {
         router.push("/");
       }
     } catch (error) {
-      console.error("Error updating prompt:", error);
+      console.log(error);
     } finally {
       setIsSubmitting(false);
     }
