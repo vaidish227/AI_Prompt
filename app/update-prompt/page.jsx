@@ -1,50 +1,42 @@
-"use client";
-
+// Import necessary modules
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSearchParams } from "next/router"; // Import useSearchParams directly from next/router
+import { Suspense } from 'react'; // Import Suspense
 
+// Import Form component
 import Form from "@components/Form";
 
+// Define UpdatePrompt component
 const UpdatePrompt = () => {
   const router = useRouter();
-  const searchParams = useSearchParams(); // Use useSearchParams directly
 
-  // Extract promptId from searchParams inside useEffect
-  const [promptId, setPromptId] = useState(null);
-
-  useEffect(() => {
-    // Extract promptId from searchParams
-    const id = searchParams.get("id");
-    setPromptId(id);
-  }, [searchParams]);
+  // Wrap useSearchParams() in Suspense
+  const searchParams = <Suspense fallback={<div>Loading...</div>}>{useSearchParams()}</Suspense>;
+  const promptId = searchParams.get("id");
 
   const [post, setPost] = useState({ prompt: "", tag: "" });
   const [submitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const getPromptDetails = async () => {
-      if (!promptId) return;
+      const response = await fetch(`/api/prompt/${promptId}`);
+      const data = await response.json();
 
-      try {
-        const response = await fetch(`/api/prompt/${promptId}`);
-        const data = await response.json();
-
-        setPost({
-          prompt: data.prompt,
-          tag: data.tag,
-        });
-      } catch (error) {
-        console.error("Error fetching prompt details:", error);
-      }
+      setPost({
+        prompt: data.prompt,
+        tag: data.tag,
+      });
     };
 
-    getPromptDetails();
+    if (promptId) getPromptDetails();
   }, [promptId]);
 
   const updatePrompt = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    if (!promptId) return alert("Missing PromptId!");
 
     try {
       const response = await fetch(`/api/prompt/${promptId}`, {
