@@ -2,40 +2,49 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Suspense } from 'react';
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/router"; // Import useSearchParams directly from next/router
 
 import Form from "@components/Form";
 
 const UpdatePrompt = () => {
   const router = useRouter();
+  const searchParams = useSearchParams(); // Use useSearchParams directly
 
-  // Wrap useSearchParams() in a Suspense boundary
-  const searchParams = <Suspense fallback={<div>Loading...</div>}>{useSearchParams()}</Suspense>;
-  const promptId = searchParams.get("id");
+  // Extract promptId from searchParams inside useEffect
+  const [promptId, setPromptId] = useState(null);
+
+  useEffect(() => {
+    // Extract promptId from searchParams
+    const id = searchParams.get("id");
+    setPromptId(id);
+  }, [searchParams]);
 
   const [post, setPost] = useState({ prompt: "", tag: "" });
   const [submitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const getPromptDetails = async () => {
-      const response = await fetch(`/api/prompt/${promptId}`);
-      const data = await response.json();
+      if (!promptId) return;
 
-      setPost({
-        prompt: data.prompt,
-        tag: data.tag,
-      });
+      try {
+        const response = await fetch(`/api/prompt/${promptId}`);
+        const data = await response.json();
+
+        setPost({
+          prompt: data.prompt,
+          tag: data.tag,
+        });
+      } catch (error) {
+        console.error("Error fetching prompt details:", error);
+      }
     };
 
-    if (promptId) getPromptDetails();
+    getPromptDetails();
   }, [promptId]);
 
   const updatePrompt = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    if (!promptId) return alert("Missing PromptId!");
 
     try {
       const response = await fetch(`/api/prompt/${promptId}`, {
@@ -50,7 +59,7 @@ const UpdatePrompt = () => {
         router.push("/");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error updating prompt:", error);
     } finally {
       setIsSubmitting(false);
     }
