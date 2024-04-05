@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Suspense } from 'react';
+import { useSearchParams } from "next/navigation";
 
 import Form from "@components/Form";
 
