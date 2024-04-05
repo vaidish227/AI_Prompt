@@ -1,45 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router"; // Importing useRouter instead of useSearchParams
+import { useRouter } from "next/router";
+import { Suspense } from 'react';
 
 import Form from "@components/Form";
 
 const UpdatePrompt = () => {
   const router = useRouter();
-  const { id } = router.query; // Retrieve the query parameter directly from the router
+
+  // Wrap useSearchParams() in a Suspense boundary
+  const searchParams = <Suspense fallback={<div>Loading...</div>}>{useSearchParams()}</Suspense>;
+  const promptId = searchParams.get("id");
 
   const [post, setPost] = useState({ prompt: "", tag: "" });
   const [submitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const getPromptDetails = async () => {
-      if (id) {
-        try {
-          const response = await fetch(`/api/prompt/${id}`);
-          const data = await response.json();
+      const response = await fetch(`/api/prompt/${promptId}`);
+      const data = await response.json();
 
-          setPost({
-            prompt: data.prompt,
-            tag: data.tag,
-          });
-        } catch (error) {
-          console.log(error);
-        }
-      }
+      setPost({
+        prompt: data.prompt,
+        tag: data.tag,
+      });
     };
 
-    getPromptDetails();
-  }, [id]);
+    if (promptId) getPromptDetails();
+  }, [promptId]);
 
   const updatePrompt = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    if (!id) return alert("Missing PromptId!");
+    if (!promptId) return alert("Missing PromptId!");
 
     try {
-      const response = await fetch(`/api/prompt/${id}`, {
+      const response = await fetch(`/api/prompt/${promptId}`, {
         method: "PATCH",
         body: JSON.stringify({
           prompt: post.prompt,
