@@ -1,14 +1,13 @@
-"use client"
-// Import necessary modules
+"use client";
+
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // Import from next/router
+import { useRouter, useSearchParams } from "next/navigation";
 
 import Form from "@components/Form";
 
-// Define UpdatePrompt component
 const UpdatePrompt = () => {
   const router = useRouter();
-  const searchParams = new URLSearchParams(router.query); // Use router.query instead of useSearchParams
+  const searchParams = useSearchParams();
   const promptId = searchParams.get("id");
 
   const [post, setPost] = useState({ prompt: "", tag: "", });
