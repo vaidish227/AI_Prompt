@@ -1,6 +1,7 @@
+"use client"
 // Import necessary modules
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router"; // Import from next/router
+import { useRouter } from "next/navigation"; // Import from next/router
 
 import Form from "@components/Form";
 
