@@ -1,20 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-
+import { useRouter } from "next/router"; // Corrected import for useRouter
 import Form from "@components/Form";
 
 const UpdatePrompt = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const [searchParams, setSearchParams] = useState(new URLSearchParams(window.location.search)); // Adjusted for client-side
   const promptId = searchParams.get("id");
 
-  const [post, setPost] = useState({ prompt: "", tag: "", });
+  const [post, setPost] = useState({ prompt: "", tag: "" });
   const [submitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const getPromptDetails = async () => {
+      if (!promptId) return;
       const response = await fetch(`/api/prompt/${promptId}`);
       const data = await response.json();
 
@@ -24,18 +24,25 @@ const UpdatePrompt = () => {
       });
     };
 
-    if (promptId) getPromptDetails();
+    getPromptDetails();
   }, [promptId]);
 
   const updatePrompt = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    if (!promptId) return alert("Missing PromptId!");
+    if (!promptId) {
+      alert("Missing PromptId!");
+      setIsSubmitting(false); // Ensure to reset submitting state
+      return;
+    }
 
     try {
       const response = await fetch(`/api/prompt/${promptId}`, {
         method: "PATCH",
+        headers: {
+          'Content-Type': 'application/json', // Added missing headers
+        },
         body: JSON.stringify({
           prompt: post.prompt,
           tag: post.tag,
@@ -44,9 +51,12 @@ const UpdatePrompt = () => {
 
       if (response.ok) {
         router.push("/");
+      } else {
+        // Handle non-OK responses
+        console.error('Failed to update the prompt.');
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -54,7 +64,7 @@ const UpdatePrompt = () => {
 
   return (
     <Form
-      type='Edit'
+      type="Edit"
       post={post}
       setPost={setPost}
       submitting={submitting}
